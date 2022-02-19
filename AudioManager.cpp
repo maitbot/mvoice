@@ -39,7 +39,6 @@ CAudioManager::CAudioManager() : hot_mic(false), play_file(false), m17_sid_in(0U
 bool CAudioManager::Init(CMainWindow *pMain)
 {
 	pMainWindow = pMain;
-	std::string index = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
 
 	AM2M17.SetUp("am2m17");
 	LogInput.SetUp("log_input");

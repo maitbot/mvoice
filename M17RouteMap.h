@@ -35,7 +35,7 @@ using SHost = struct host_tag
 class CM17RouteMap
 {
 public:
-	CM17RouteMap() {}
+        CM17RouteMap() { };
 	~CM17RouteMap();
 	const std::shared_ptr<SHost> Find(const std::string &cs) const;
 	void Update(const std::string &cs, const std::string &url, const std::string &ip4addr, const std::string &ip6addr, const uint16_t port = 17000);
@@ -43,6 +43,7 @@ public:
 	void ReadAll();
 	const std::list<std::string> GetKeys() const;
 	void Erase(const std::string &cs);
+	void SetConfigDir(const std::string &cfgdir);
 	size_t Size() const;
 
 private:
@@ -50,4 +51,6 @@ private:
 	void ReadJson(const char *filename);
 	std::map<std::string, std::shared_ptr<SHost>> baseMap;
 	mutable std::mutex mux;
+        std::string d_config_dir;
 };
+

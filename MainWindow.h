@@ -39,7 +39,7 @@ public:
 	CConfigure cfg;
 	CAudioManager AudioManager;
 
-	bool Init(const Glib::RefPtr<Gtk::Builder>, const Glib::ustring &);
+        bool Init(const Glib::RefPtr<Gtk::Builder>, const Glib::ustring &, const std::string &config_dir);
 	void Run();
 	void Receive(bool is_rx);
 	// regular expression for testing stuff

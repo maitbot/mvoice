@@ -43,7 +43,6 @@ CMainWindow::CMainWindow() :
 	bDestIP(false),
 	bTransOK(true)
 {
-	cfg.CopyTo(cfgdata);
 	// allowed M17 " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/."
 	IPv4RegEx = std::regex("^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3,3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9]){1,1}$", std::regex::extended);
 	IPv6RegEx = std::regex("^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}(:[0-9a-fA-F]{1,4}){1,1}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|([0-9a-fA-F]{1,4}:){1,1}(:[0-9a-fA-F]{1,4}){1,6}|:((:[0-9a-fA-F]{1,4}){1,7}|:))$", std::regex::extended);
@@ -102,11 +101,12 @@ void CMainWindow::CloseAll()
 	LogInput.Close();
 }
 
-bool CMainWindow::Init(const Glib::RefPtr<Gtk::Builder> builder, const Glib::ustring &name)
+bool CMainWindow::Init(const Glib::RefPtr<Gtk::Builder> builder, const Glib::ustring &name, const std::string &config_dir)
 {
-	std::string dbname = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-	dbname.append(G_DIR_SEPARATOR_S);
-	dbname.append("qn.db");
+        cfg = CConfigure(config_dir);
+	cfg.ReadData();
+  	cfg.CopyTo(cfgdata);
+	routeMap.SetConfigDir(config_dir);
 
 	if (M172AM.Open("m172am")) {
 		CloseAll();
@@ -574,13 +574,11 @@ static CURLcode curl_read(const std::string& url, std::ostream& os, long timeout
 	return code;
 }
 
-static void ReadM17Json()
+static void ReadM17Json(const std::string mvoice_config_dir)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	std::string path = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-	path.append(G_DIR_SEPARATOR_S);
-	path.append("m17refl.json");
+	std::string path = mvoice_config_dir + "m17refl.json";
 	std::ofstream ofs(path);
 	if (ofs.is_open()) {
 		const std::string url("https://reflectors.m17.link/ref-list/json");
@@ -599,9 +597,12 @@ static void ReadM17Json()
 int main (int argc, char **argv)
 {
         // Define a standard place for config files
-        std::string path = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-        g_mkdir_with_parents(path.c_str(), S_IRWXU);
-	ReadM17Json();
+        std::string mvoice_config_dir = Glib::get_user_config_dir()
+	                              + G_DIR_SEPARATOR_S + "mvoice";
+        g_mkdir_with_parents(mvoice_config_dir.c_str(), S_IRWXU);
+	mvoice_config_dir.append(G_DIR_SEPARATOR_S);
+
+        ReadM17Json(mvoice_config_dir);
 
 	theApp = Gtk::Application::create(argc, argv, "net.openquad.DVoice");
 
@@ -609,7 +610,7 @@ int main (int argc, char **argv)
 	Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create();
 	try
 	{
-	        builder->add_from_file(path + G_DIR_SEPARATOR_S + "MVoice.glade");
+	        builder->add_from_file(mvoice_config_dir + "MVoice.glade");
 	}
 	catch (const Glib::FileError& ex)
 	{
@@ -631,7 +632,7 @@ int main (int argc, char **argv)
 	}
 
 	CMainWindow MainWindow;
-	if (MainWindow.Init(builder, "AppWindow"))
+	if (MainWindow.Init(builder, "AppWindow", mvoice_config_dir))
 		return 1;
 
 	MainWindow.Run();

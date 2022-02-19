@@ -18,7 +18,6 @@
 
 #include <fstream>
 #include <regex>
-#include <gtkmm.h>
 
 #include "M17RouteMap.h"
 #include "Utilities.h"
@@ -85,8 +84,7 @@ void CM17RouteMap::ReadJson(const char *filename)
 	bool cs, ur, v4, v6, po;
 	cs = ur = v4 = v6 = po = false;
 	std::string scs, sur, sv4, sv6, spo;
-	std::string path = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-	path.append(G_DIR_SEPARATOR_S);
+	std::string path = d_config_dir;
 	path.append(filename);
 	std::ifstream f(path, std::ifstream::in);
 	while (f.good()) {
@@ -133,8 +131,7 @@ void CM17RouteMap::ReadJson(const char *filename)
 
 void CM17RouteMap::Read(const char *filename)
 {
-	std::string path = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-	path.append(G_DIR_SEPARATOR_S);
+	std::string path = d_config_dir;
 	path.append(filename);
 	std::ifstream file(path, std::ifstream::in);
 	if (file.is_open()) {
@@ -152,8 +149,7 @@ void CM17RouteMap::Read(const char *filename)
 
 void CM17RouteMap::Save() const
 {
-	std::string path = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-	path.append(G_DIR_SEPARATOR_S);
+	std::string path = d_config_dir;
 	path.append("M17Hosts.cfg");
 	std::ofstream file(path.c_str(), std::ofstream::out | std::ofstream::trunc);
 	if (file.is_open()) {
@@ -186,6 +182,11 @@ void CM17RouteMap::Erase(const std::string &cs)
 	if (it != baseMap.end())
 		baseMap.erase(it);
 	mux.unlock();
+}
+
+void CM17RouteMap::SetConfigDir(const std::string &cfg_dir)
+{
+       d_config_dir = cfg_dir;
 }
 
 size_t CM17RouteMap::Size() const

@@ -25,7 +25,7 @@
 enum class EInternetType { ipv4only, ipv6only, dualstack };
 
 using CFGDATA = struct CFGData_struct {
-	std::string sAudioIn, sAudioOut, sM17SourceCallsign;
+        std::string sAudioIn, sAudioOut, sM17SourceCallsign;
 	bool bVoiceOnlyEnable;
 	EInternetType eNetType;
 	char cModule;
@@ -33,9 +33,10 @@ using CFGDATA = struct CFGData_struct {
 
 class CConfigure {
 public:
-	CConfigure() { ReadData(); }
+        CConfigure() : d_config_dir("") { }
+        CConfigure(std::string config_dir) : d_config_dir(config_dir) { }
 
-	void ReadData();
+        void ReadData();
 	void WriteData();
 	void CopyFrom(const CFGDATA &);
 	void CopyTo(CFGDATA &);
@@ -44,7 +45,8 @@ public:
 
 private:
 	// data
-	CFGDATA data;
+        std::string d_config_dir;
+        CFGDATA data;
 	// methods
 	void SetDefaultValues();
 };

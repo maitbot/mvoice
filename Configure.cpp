@@ -21,7 +21,6 @@
 #include <iomanip>
 #include <fstream>
 #include <cstring>
-#include <gtkmm.h>
 
 #include "Configure.h"
 
@@ -40,8 +39,7 @@ void CConfigure::SetDefaultValues()
 
 void CConfigure::ReadData()
 {
-        std::string path = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-	path.append(G_DIR_SEPARATOR_S);
+        std::string path = d_config_dir;
 	path.append("mvoice.cfg");
 
 	std::ifstream cfg(path.c_str(), std::ifstream::in);
@@ -89,9 +87,7 @@ void CConfigure::ReadData()
 
 void CConfigure::WriteData()
 {
-
-	std::string path = Glib::get_user_config_dir() + G_DIR_SEPARATOR_S + "mvoice";
-	path.append(G_DIR_SEPARATOR_S);
+	std::string path = d_config_dir;
 	path.append("mvoice.cfg");
 
 	// directory exists, now make the file
